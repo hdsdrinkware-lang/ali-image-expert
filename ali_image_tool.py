@@ -1,9 +1,8 @@
 import os
 from PIL import Image
-
 def get_ali_images(img):
     img = img.convert("RGB")
-    target_size = 1254
+    target_size = 1000
     square_img = Image.new("RGB", (target_size, target_size), (255, 255, 255))
     w, h = img.size
     ratio = min(target_size / w, target_size / h)
@@ -24,13 +23,12 @@ def get_ali_images(img):
     results.append(("5_bottom_left.jpg", base_img.crop((0, half, half, target_size)).resize((target_size, target_size))))
     results.append(("6_bottom_right.jpg", base_img.crop((half, half, target_size, target_size)).resize((target_size, target_size))))
     return results
-
 def split_ali_grid(img):
     img = img.convert("RGB")
     width, height = img.size
     cell_w = width // 3
     cell_h = height // 2
-    target_dim = 1254
+    target_dim = 1000
     results = []
     for row in range(2):
         for col in range(3):
