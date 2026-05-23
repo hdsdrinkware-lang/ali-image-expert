@@ -16,8 +16,10 @@ pasted_result = paste_image_button("📋 方式一：点击此处粘贴合集图
 uploaded_file = st.file_uploader("📂 方式二：点击此处上传合集文件", type=["jpg", "jpeg", "png", "webp"])
 
 target_img = None
-if pasted_result: target_img = pasted_result.image_data
-elif uploaded_file: target_img = Image.open(uploaded_file)
+if pasted_result is not None and pasted_result.image_data is not None:
+    target_img = pasted_result.image_data
+elif uploaded_file is not None:
+    target_img = Image.open(uploaded_file)
 
 if target_img:
     st.image(target_img, caption="📸 已加载图片预览", use_container_width=True)
