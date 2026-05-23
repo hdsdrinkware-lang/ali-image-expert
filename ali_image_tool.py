@@ -1,28 +1,5 @@
-import os
 from PIL import Image
-def get_ali_images(img):
-    img = img.convert("RGB")
-    target_size = 1000
-    square_img = Image.new("RGB", (target_size, target_size), (255, 255, 255))
-    w, h = img.size
-    ratio = min(target_size / w, target_size / h)
-    new_w, new_h = int(w * ratio), int(h * ratio)
-    img_resized = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
-    offset = ((target_size - new_w) // 2, (target_size - new_h) // 2)
-    square_img.paste(img_resized, offset)
-    base_img = square_img
-    results = []
-    results.append(("1_main_white_bg.jpg", base_img))
-    crop_size = int(target_size * 0.666)
-    left = (target_size - crop_size) // 2
-    top = (target_size - crop_size) // 2
-    results.append(("2_center_detail.jpg", base_img.crop((left, top, left + crop_size, top + crop_size)).resize((target_size, target_size))))
-    half = target_size // 2
-    results.append(("3_top_left.jpg", base_img.crop((0, 0, half, half)).resize((target_size, target_size))))
-    results.append(("4_top_right.jpg", base_img.crop((half, 0, target_size, half)).resize((target_size, target_size))))
-    results.append(("5_bottom_left.jpg", base_img.crop((0, half, half, target_size)).resize((target_size, target_size))))
-    results.append(("6_bottom_right.jpg", base_img.crop((half, half, target_size, target_size)).resize((target_size, target_size))))
-    return results
+
 def split_ali_grid(img):
     img = img.convert("RGB")
     width, height = img.size
