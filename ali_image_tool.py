@@ -3,21 +3,26 @@ from PIL import Image
 
 def get_ali_images(img):
     img = img.convert("RGB")
-    target_size = max(img.size[0], img.size[1], 1000)
+    target_size = 1254
     square_img = Image.new("RGB", (target_size, target_size), (255, 255, 255))
-    offset = ((target_size - img.size[0]) // 2, (target_size - img.size[1]) // 2)
-    square_img.paste(img, offset)
-    base_img = square_img.resize((1000, 1000), Image.Resampling.LANCZOS)
+    w, h = img.size
+    ratio = min(target_size / w, target_size / h)
+    new_w, new_h = int(w * ratio), int(h * ratio)
+    img_resized = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+    offset = ((target_size - new_w) // 2, (target_size - new_h) // 2)
+    square_img.paste(img_resized, offset)
+    base_img = square_img
     results = []
     results.append(("1_main_white_bg.jpg", base_img))
-    crop_size = 666
-    left = (1000 - crop_size) // 2
-    top = (1000 - crop_size) // 2
-    results.append(("2_center_detail.jpg", base_img.crop((left, top, left + crop_size, top + crop_size)).resize((1000, 1000))))
-    results.append(("3_top_left.jpg", base_img.crop((0, 0, 500, 500)).resize((1000, 1000))))
-    results.append(("4_top_right.jpg", base_img.crop((500, 0, 1000, 500)).resize((1000, 1000))))
-    results.append(("5_bottom_left.jpg", base_img.crop((0, 500, 500, 1000)).resize((1000, 1000))))
-    results.append(("6_bottom_right.jpg", base_img.crop((500, 500, 1000, 1000)).resize((1000, 1000))))
+    crop_size = int(target_size * 0.666)
+    left = (target_size - crop_size) // 2
+    top = (target_size - crop_size) // 2
+    results.append(("2_center_detail.jpg", base_img.crop((left, top, left + crop_size, top + crop_size)).resize((target_size, target_size))))
+    half = target_size // 2
+    results.append(("3_top_left.jpg", base_img.crop((0, 0, half, half)).resize((target_size, target_size))))
+    results.append(("4_top_right.jpg", base_img.crop((half, 0, target_size, half)).resize((target_size, target_size))))
+    results.append(("5_bottom_left.jpg", base_img.crop((0, half, half, target_size)).resize((target_size, target_size))))
+    results.append(("6_bottom_right.jpg", base_img.crop((half, half, target_size, target_size)).resize((target_size, target_size))))
     return results
 
 def split_ali_grid(img):
@@ -25,6 +30,7 @@ def split_ali_grid(img):
     width, height = img.size
     cell_w = width // 3
     cell_h = height // 2
+    target_dim = 1254
     results = []
     for row in range(2):
         for col in range(3):
@@ -34,11 +40,12 @@ def split_ali_grid(img):
             bottom = (row + 1) * cell_h if row < 1 else height
             cell = img.crop((left, top, right, bottom))
             w, h = cell.size
-            target_dim = max(w, h, 1000)
+            ratio = min(target_dim / w, target_dim / h)
+            new_w, new_h = int(w * ratio), int(h * ratio)
+            cell_resized = cell.resize((new_w, new_h), Image.Resampling.LANCZOS)
             square_img = Image.new("RGB", (target_dim, target_dim), (255, 255, 255))
-            offset = ((target_dim - w) // 2, (target_dim - h) // 2)
-            square_img.paste(cell, offset)
-            final_img = square_img.resize((1000, 1000), Image.Resampling.LANCZOS)
+            offset = ((target_dim - new_w) // 2, (target_dim - new_h) // 2)
+            square_img.paste(cell_resized, offset)
             index = row * 3 + col + 1
-            results.append((f"ali_main_image_{index}.jpg", final_img))
+            results.append((f"ali_main_image_{index}.jpg", square_img))
     return results
